@@ -1,5 +1,5 @@
 <consulo-plugin-requires>
     <plugins>
-        <plugin>consulo.javascript</plugin>
+        <plugin>consulo.json</plugin>
     </plugins>
 </consulo-plugin-requires>

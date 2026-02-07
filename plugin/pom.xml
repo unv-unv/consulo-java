@@ -63,7 +63,7 @@
                         <dependency>consulo.library.batik</dependency>
                         <dependency>com.intellij.images</dependency>
                         <dependency>com.intellij.properties</dependency>
-                        <dependency>consulo.javascript</dependency>
+                        <dependency>consulo.json</dependency>
                     </dependencies>
                     <packaging>
                         <skip>${dev.mode}</skip>

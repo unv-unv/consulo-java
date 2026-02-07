@@ -4,5 +4,5 @@
  */
 module consulo.java.gson.impl {
     requires consulo.java.language.impl;
-    requires consulo.javascript.json.javascript.impl;
+    requires consulo.json.jom.api;
 }

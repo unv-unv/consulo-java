@@ -17,12 +17,11 @@
 	<id>consulo.java</id>
 	<name>Java</name>
 	<version>SNAPHOT</version>
-	<category>Custom Languages</category>
 	<vendor>Jetbrains and others</vendor>
 	<depends optional="true">com.intellij.regexp</depends>
 	<depends optional="true">com.intellij.images</depends>
 	<depends optional="true">com.intellij.properties</depends>
-	<depends optional="true">consulo.javascript</depends>
+	<depends optional="true">consulo.json</depends>
 	<depends>com.intellij.xml</depends>
 	<resource-bundle>messages.JavaBundle</resource-bundle>
 
