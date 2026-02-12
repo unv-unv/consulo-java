@@ -21,7 +21,9 @@ import consulo.content.bundle.Sdk;
 import consulo.content.bundle.SdkModificator;
 import consulo.content.bundle.SdkTable;
 import consulo.content.bundle.SdkType;
+import consulo.localize.LocalizeValue;
 import consulo.process.cmd.GeneralCommandLine;
+import consulo.ui.image.Image;
 import jakarta.annotation.Nonnull;
 
 import java.io.File;
@@ -35,8 +37,8 @@ public abstract class JavaSdkType extends SdkType {
         return Application.get().getExtensionPoint(SdkType.class).findExtensionOrFail(DefaultJavaSdkType.class);
     }
 
-    public JavaSdkType(String name) {
-        super(name);
+    protected JavaSdkType(@Nonnull String id, @Nonnull LocalizeValue displayName, @Nonnull Image icon) {
+        super(id, displayName, icon);
     }
 
     public final Sdk createJdk(String jdkName, @Nonnull String home) {

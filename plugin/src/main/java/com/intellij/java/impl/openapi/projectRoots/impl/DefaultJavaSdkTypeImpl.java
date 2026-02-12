@@ -38,7 +38,6 @@ import consulo.platform.Platform;
 import consulo.platform.PlatformOperatingSystem;
 import consulo.process.cmd.GeneralCommandLine;
 import consulo.project.localize.ProjectLocalize;
-import consulo.ui.image.Image;
 import consulo.util.collection.Sets;
 import consulo.util.dataholder.Key;
 import consulo.util.io.FileUtil;
@@ -77,25 +76,7 @@ public class DefaultJavaSdkTypeImpl extends DefaultJavaSdkType {
     public static final Key<Boolean> KEY = Key.create("JavaSdk");
 
     public DefaultJavaSdkTypeImpl() {
-        super("JDK");
-    }
-
-    @Nonnull
-    @Override
-    public String getPresentableName() {
-        return ProjectLocalize.sdkJavaName().get();
-    }
-
-    @Nonnull
-    @Override
-    public Image getIcon() {
-        return JavaPsiImplIconGroup.java();
-    }
-
-    @Nonnull
-    @Override
-    public String getHelpTopic() {
-        return "reference.project.structure.sdk.java";
+        super("JDK", ProjectLocalize.sdkJavaName(), JavaPsiImplIconGroup.java());
     }
 
     @Override
