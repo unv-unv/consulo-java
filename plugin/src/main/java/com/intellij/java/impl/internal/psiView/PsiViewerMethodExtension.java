@@ -16,8 +16,8 @@
 package com.intellij.java.impl.internal.psiView;
 
 import consulo.annotation.component.ExtensionImpl;
-import consulo.ide.impl.idea.util.PlatformIcons;
 import consulo.language.psi.PsiElement;
+import consulo.platform.base.icon.PlatformIconGroup;
 import consulo.project.Project;
 
 import javax.swing.*;
@@ -28,15 +28,18 @@ import javax.swing.*;
  */
 @ExtensionImpl
 public class PsiViewerMethodExtension extends JavaPsiViewerExtension {
-  public String getName() {
-    return "Java Method";
-  }
+    @Override
+    public String getName() {
+        return "Java Method";
+    }
 
-  public Icon getIcon() {
-    return PlatformIcons.METHOD_ICON;
-  }
+    @Override
+    public Icon getIcon() {
+        return (Icon) PlatformIconGroup.nodesMethod();
+    }
 
-  public PsiElement createElement(Project project, String text) {
-    return getFactory(project).createMethodFromText(text, null);
-  }
+    @Override
+    public PsiElement createElement(Project project, String text) {
+        return getFactory(project).createMethodFromText(text, null);
+    }
 }
