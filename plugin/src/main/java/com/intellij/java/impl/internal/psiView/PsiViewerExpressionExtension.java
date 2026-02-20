@@ -16,9 +16,10 @@
 package com.intellij.java.impl.internal.psiView;
 
 import consulo.annotation.component.ExtensionImpl;
-import consulo.ide.impl.idea.util.PlatformIcons;
 import consulo.language.psi.PsiElement;
+import consulo.platform.base.icon.PlatformIconGroup;
 import consulo.project.Project;
+import consulo.ui.ex.awtUnsafe.TargetAWT;
 
 import javax.swing.*;
 
@@ -28,15 +29,18 @@ import javax.swing.*;
  */
 @ExtensionImpl
 public class PsiViewerExpressionExtension extends JavaPsiViewerExtension {
-  public String getName() {
-    return "Java Expression";
-  }
+    @Override
+    public String getName() {
+        return "Java Expression";
+    }
 
-  public Icon getIcon() {
-    return PlatformIcons.CLASS_INITIALIZER;
-  }
+    @Override
+    public Icon getIcon() {
+        return TargetAWT.to(PlatformIconGroup.nodesClassinitializer());
+    }
 
-  public PsiElement createElement(Project project, String text) {
-    return getFactory(project).createExpressionFromText(text, null);
-  }
+    @Override
+    public PsiElement createElement(Project project, String text) {
+        return getFactory(project).createExpressionFromText(text, null);
+    }
 }
