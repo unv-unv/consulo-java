@@ -19,6 +19,7 @@ import consulo.annotation.component.ExtensionImpl;
 import consulo.language.psi.PsiElement;
 import consulo.platform.base.icon.PlatformIconGroup;
 import consulo.project.Project;
+import consulo.ui.ex.awtUnsafe.TargetAWT;
 
 import javax.swing.*;
 
@@ -35,7 +36,7 @@ public class PsiViewerMethodExtension extends JavaPsiViewerExtension {
 
     @Override
     public Icon getIcon() {
-        return (Icon) PlatformIconGroup.nodesMethod();
+        return TargetAWT.to(PlatformIconGroup.nodesMethod());
     }
 
     @Override
