@@ -116,7 +116,7 @@ public final class TextWithImportsImpl implements TextWithImports {
       result += SEPARATOR + myImports;
     }
     if (myFileType != null) {
-      result += SEPARATOR + myFileType.getName();
+      result += SEPARATOR + myFileType.getId();
     }
     return result;
   }
