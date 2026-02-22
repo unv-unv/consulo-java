@@ -21,7 +21,6 @@ import consulo.language.editor.refactoring.changeSignature.CallerChooserBase;
 import consulo.project.Project;
 import consulo.ui.ex.awt.tree.Tree;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -32,7 +31,7 @@ public class JavaCallerChooser extends CallerChooserBase<PsiMethod> {
   }
 
   @Override
-  protected JavaMethodNode createTreeNode(PsiMethod method, HashSet<PsiMethod> called, Runnable cancelCallback) {
+  protected JavaMethodNode createTreeNode(PsiMethod method, Set<PsiMethod> called, Runnable cancelCallback) {
     return new JavaMethodNode(method, called, myProject, cancelCallback);
   }
 

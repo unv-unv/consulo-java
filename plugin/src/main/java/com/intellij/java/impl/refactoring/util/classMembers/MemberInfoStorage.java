@@ -19,7 +19,7 @@ import com.intellij.java.language.psi.*;
 import com.intellij.java.language.psi.util.MethodSignatureUtil;
 import consulo.language.editor.refactoring.classMember.AbstractMemberInfoStorage;
 
-import java.util.ArrayList;
+import java.util.List;
 
 
 public class MemberInfoStorage extends AbstractMemberInfoStorage<PsiMember, PsiClass, MemberInfo> {
@@ -34,7 +34,7 @@ public class MemberInfoStorage extends AbstractMemberInfoStorage<PsiMember, PsiC
   }
 
   @Override
-  protected void extractClassMembers(PsiClass aClass, ArrayList<MemberInfo> temp) {
+  protected void extractClassMembers(PsiClass aClass, List<MemberInfo> temp) {
     MemberInfo.extractClassMembers(aClass, temp, myFilter, false);
   }
 
