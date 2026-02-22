@@ -240,7 +240,7 @@ final class DataFlowInstructionVisitor extends StandardInstructionVisitor {
     ) {
         if (!expression.isPhysical()) {
             Application application = Application.get();
-            if (application.isEAP() || application.isInternal() || application.isUnitTestMode()) {
+            if (application.isInternal() || application.isUnitTestMode()) {
                 throw new IllegalStateException("Non-physical expression is passed");
             }
         }

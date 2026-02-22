@@ -11,7 +11,6 @@ import com.intellij.java.language.psi.*;
 import com.intellij.java.language.psi.util.PropertyUtilBase;
 import com.intellij.java.language.psi.util.PsiTypesUtil;
 import com.intellij.java.language.psi.util.TypeConversionUtil;
-import consulo.application.ApplicationManager;
 import consulo.application.progress.ProgressManager;
 import consulo.logging.Logger;
 import consulo.util.collection.ContainerUtil;
@@ -24,10 +23,9 @@ import consulo.util.lang.Couple;
 import consulo.util.lang.ObjectUtil;
 import consulo.util.lang.Pair;
 import consulo.util.lang.StringUtil;
+import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import one.util.streamex.StreamEx;
-
-import jakarta.annotation.Nonnull;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -551,7 +549,7 @@ public class DfaMemoryStateImpl implements DfaMemoryState {
   }
 
   private void checkInvariants() {
-    if (!LOG.isDebugEnabled() && !ApplicationManager.getApplication().isEAP()) {
+    if (!LOG.isDebugEnabled()) {
       return;
     }
     myIdToEqClassesIndices.forEach((id, classIndex) -> {
