@@ -20,13 +20,18 @@ import consulo.execution.action.Location;
 import consulo.execution.configuration.RunConfigurationBase;
 import consulo.execution.configuration.RunnerSettings;
 import consulo.execution.configuration.ui.SettingsEditor;
-import consulo.execution.coverage.*;
+import consulo.execution.coverage.CoverageDataManager;
+import consulo.execution.coverage.CoverageEnabledConfiguration;
+import consulo.execution.coverage.CoverageRunner;
+import consulo.execution.coverage.CoverageRunnerData;
+import consulo.execution.coverage.localize.ExecutionCoverageLocalize;
 import consulo.java.execution.configurations.OwnJavaParameters;
 import consulo.java.language.bundle.JavaSdkTypeUtil;
 import consulo.language.editor.refactoring.event.RefactoringElementListener;
 import consulo.language.editor.refactoring.event.RefactoringElementListenerComposite;
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.scope.GlobalSearchScope;
+import consulo.localize.LocalizeValue;
 import consulo.process.ProcessHandler;
 import consulo.project.Project;
 import consulo.project.ui.notification.Notification;
@@ -42,6 +47,7 @@ import org.jdom.Element;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Registers "Coverage" tab in Java run configurations
@@ -59,13 +65,8 @@ public class CoverageJavaRunConfigurationExtension extends RunConfigurationExten
 
     @Override
     @Nullable
-    public SettingsEditor createEditor(@Nonnull RunConfigurationBase configuration) {
-        return new CoverageConfigurable(configuration);
-    }
-
-    @Override
-    public String getEditorTitle() {
-        return CoverageEngine.getEditorTitle();
+    public Map.Entry<LocalizeValue, SettingsEditor> createEditor(@Nonnull RunConfigurationBase configuration) {
+        return Map.entry(ExecutionCoverageLocalize.coverageTabTitle(), new CoverageConfigurable(configuration));
     }
 
     @Nonnull
