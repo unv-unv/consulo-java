@@ -6,6 +6,7 @@ import consulo.annotation.component.ExtensionImpl;
 import consulo.application.Application;
 import consulo.application.ApplicationManager;
 import consulo.java.execution.projectRoots.OwnJdkUtil;
+import consulo.logging.Logger;
 import consulo.platform.Platform;
 import consulo.util.collection.Maps;
 import consulo.util.io.FileUtil;
@@ -20,6 +21,7 @@ import consulo.virtualFileSystem.event.BulkFileListener;
 import consulo.virtualFileSystem.event.VFileContentChangeEvent;
 import consulo.virtualFileSystem.event.VFileDeleteEvent;
 import consulo.virtualFileSystem.event.VFileEvent;
+import consulo.virtualFileSystem.util.VirtualFileUtil;
 import org.jspecify.annotations.Nullable;
 
 import java.io.File;
@@ -28,129 +30,137 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 @ExtensionImpl
 public class JrtFileSystemImpl extends BaseArchiveFileSystem implements JrtFileSystem {
-  private final Map<String, ArchiveHandler> myHandlers = Collections.synchronizedMap(Maps.newHashMap(FileUtil.PATH_HASHING_STRATEGY));
-  private final AtomicBoolean mySubscribed = new AtomicBoolean(false);
+    private final Map<String, ArchiveHandler> myHandlers = Collections.synchronizedMap(Maps.newHashMap(FileUtil.PATH_HASHING_STRATEGY));
+    private final AtomicBoolean mySubscribed = new AtomicBoolean(false);
 
-  @Override
-  public String getProtocol() {
-    return PROTOCOL;
-  }
-
-  @Override
-  public String normalize(String path) {
-    int p = path.indexOf(SEPARATOR);
-    boolean isWindows = Platform.current().os().isWindows();
-    return p > 0 ? FileUtil.normalize(path.substring(0, p), isWindows) + path.substring(p) : super.normalize(path);
-  }
-
-  @Override
-  public String extractLocalPath(String rootPath) {
-    return StringUtil.trimEnd(rootPath, SEPARATOR);
-  }
-
-  @Override
-  public String composeRootPath(String localPath) {
-    return localPath + SEPARATOR;
-  }
-
-  @Override
-  public String extractRootPath(String entryPath) {
-    int separatorIndex = entryPath.indexOf(SEPARATOR);
-    assert separatorIndex >= 0 : "Path passed to JrtFileSystem must have a separator '!/' but got: " + entryPath;
-    return entryPath.substring(0, separatorIndex + SEPARATOR.length());
-  }
-
-  @Override
-  public ArchiveHandler getHandler(VirtualFile entryFile) {
-    checkSubscription();
-
-    String homePath = extractLocalPath(extractRootPath(entryFile.getPath()));
-    return myHandlers.computeIfAbsent(homePath, key -> {
-      JrtHandler handler = new JrtHandler(key);
-      ApplicationManager.getApplication().invokeLater(
-          () -> LocalFileSystem.getInstance().refreshAndFindFileByPath(key + "/release"),
-          Application.get().getDefaultModalityState());
-      return handler;
-    });
-  }
-
-  private void checkSubscription() {
-    if (mySubscribed.getAndSet(true)) {
-      return;
+    @Override
+    public String getProtocol() {
+        return PROTOCOL;
     }
 
-    Application app = ApplicationManager.getApplication();
-    if (app.isDisposeInProgress()) {
-      return;  // we might perform a shutdown activity that includes visiting archives (IDEA-181620)
+    @Override
+    public String normalize(String path) {
+        int p = path.indexOf(SEPARATOR);
+        boolean isWindows = Platform.current().os().isWindows();
+        return p > 0 ? FileUtil.normalize(path.substring(0, p), isWindows) + path.substring(p) : super.normalize(path);
     }
-    app.getMessageBus().connect(app).subscribe(BulkFileListener.class, new BulkFileListener() {
-      @Override
-      public void after(List<? extends VFileEvent> events) {
-        Set<VirtualFile> toRefresh = null;
 
-        for (VFileEvent e : events) {
-          if (e.getFileSystem() instanceof LocalFileSystem) {
-            String homePath = null;
+    @Override
+    public String extractLocalPath(String rootPath) {
+        return StringUtil.trimEnd(rootPath, SEPARATOR);
+    }
 
-            if (e instanceof VFileContentChangeEvent) {
-              VirtualFile file = e.getFile();
-              if ("release".equals(file.getName())) {
-                homePath = file.getParent().getPath();
-              }
-            } else if (e instanceof VFileDeleteEvent) {
-              homePath = e.getFile().getPath();
+    @Override
+    public String composeRootPath(String localPath) {
+        return localPath + SEPARATOR;
+    }
+
+    @Override
+    public String extractRootPath(String entryPath) {
+        int separatorIndex = entryPath.indexOf(SEPARATOR);
+        assert separatorIndex >= 0 : "Path passed to JrtFileSystem must have a separator '!/' but got: " + entryPath;
+        return entryPath.substring(0, separatorIndex + SEPARATOR.length());
+    }
+
+    @Override
+    public ArchiveHandler getHandler(VirtualFile entryFile) {
+        checkSubscription();
+
+        String homePath = extractLocalPath(extractRootPath(entryFile.getPath()));
+        return myHandlers.computeIfAbsent(homePath, key -> {
+            JrtHandler handler = new JrtHandler(key);
+            loadReleaseFileIntoVfs(key);
+            return handler;
+        });
+    }
+
+    private static void loadReleaseFileIntoVfs(String homePath) {
+        var releasePath = homePath + "/release";
+        VirtualFileUtil.refreshAndFindFileByPath(LocalFileSystem.getInstance(), releasePath, file -> {
+            if (file == null) {
+                Logger.getInstance(JrtFileSystemImpl.class).warn("Cannot load into VFS: " + releasePath);
             }
+        });
+    }
 
-            if (homePath != null) {
-              ArchiveHandler handler = myHandlers.remove(homePath);
-              if (handler != null) {
-                handler.dispose();
-                VirtualFile root = findFileByPath(composeRootPath(homePath));
-                if (root != null) {
-                  ((NewVirtualFile) root).markDirtyRecursively();
-                  if (toRefresh == null) {
-                    toRefresh = new HashSet<>();
-                  }
-                  toRefresh.add(root);
+    private void checkSubscription() {
+        if (mySubscribed.getAndSet(true)) {
+            return;
+        }
+
+        Application app = ApplicationManager.getApplication();
+        if (app.isDisposeInProgress()) {
+            return;  // we might perform a shutdown activity that includes visiting archives (IDEA-181620)
+        }
+        app.getMessageBus().connect(app).subscribe(BulkFileListener.class, new BulkFileListener() {
+            @Override
+            public void after(List<? extends VFileEvent> events) {
+                Set<VirtualFile> toRefresh = null;
+
+                for (VFileEvent e : events) {
+                    if (e.getFileSystem() instanceof LocalFileSystem) {
+                        String homePath = null;
+
+                        if (e instanceof VFileContentChangeEvent) {
+                            VirtualFile file = e.getFile();
+                            if ("release".equals(file.getName())) {
+                                homePath = file.getParent().getPath();
+                            }
+                        }
+                        else if (e instanceof VFileDeleteEvent) {
+                            homePath = e.getFile().getPath();
+                        }
+
+                        if (homePath != null) {
+                            ArchiveHandler handler = myHandlers.remove(homePath);
+                            if (handler != null) {
+                                handler.dispose();
+                                VirtualFile root = findFileByPath(composeRootPath(homePath));
+                                if (root != null) {
+                                    ((NewVirtualFile) root).markDirtyRecursively();
+                                    if (toRefresh == null) {
+                                        toRefresh = new HashSet<>();
+                                    }
+                                    toRefresh.add(root);
+                                }
+                            }
+                        }
+                    }
                 }
-              }
+
+                if (toRefresh != null) {
+                    boolean async = !ApplicationManager.getApplication().isUnitTestMode();
+                    RefreshQueue.getInstance().refresh(async, true, null, toRefresh);
+                }
             }
-          }
-        }
+        });
+    }
 
-        if (toRefresh != null) {
-          boolean async = !ApplicationManager.getApplication().isUnitTestMode();
-          RefreshQueue.getInstance().refresh(async, true, null, toRefresh);
-        }
-      }
-    });
-  }
+    @Override
+    protected boolean isCorrectFileType(VirtualFile local) {
+        String path = local.getPath();
+        return OwnJdkUtil.isModularRuntime(path) && !OwnJdkUtil.isExplodedModularRuntime(path);
+    }
 
-  @Override
-  protected boolean isCorrectFileType(VirtualFile local) {
-    String path = local.getPath();
-    return OwnJdkUtil.isModularRuntime(path) && !OwnJdkUtil.isExplodedModularRuntime(path);
-  }
+    @Nullable
+    @Override
+    public VirtualFile getLocalVirtualFileFor(@Nullable VirtualFile virtualFile) {
+        return getLocalByEntry(virtualFile);
+    }
 
-  @Nullable
-  @Override
-  public VirtualFile getLocalVirtualFileFor(@Nullable VirtualFile virtualFile) {
-    return getLocalByEntry(virtualFile);
-  }
+    @Nullable
+    @Override
+    public VirtualFile findLocalVirtualFileByPath(String s) {
+        return findLocalByRootPath(s);
+    }
 
-  @Nullable
-  @Override
-  public VirtualFile findLocalVirtualFileByPath(String s) {
-    return findLocalByRootPath(s);
-  }
+    @Override
+    public void setNoCopyJarForPath(String s) {
 
-  @Override
-  public void setNoCopyJarForPath(String s) {
+    }
 
-  }
-
-  @Override
-  public boolean isMakeCopyOfJar(File file) {
-    return false;
-  }
+    @Override
+    public boolean isMakeCopyOfJar(File file) {
+        return false;
+    }
 }
