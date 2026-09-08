@@ -18,7 +18,6 @@ package com.intellij.java.impl.psi.codeStyle.arrangement;
 import com.intellij.java.language.psi.PsiClass;
 import com.intellij.java.language.psi.PsiField;
 import com.intellij.java.language.psi.PsiMethod;
-import consulo.ide.impl.idea.util.containers.ContainerUtilRt;
 import consulo.util.collection.ContainerUtil;
 import consulo.util.collection.Stack;
 import consulo.util.collection.primitive.objects.ObjectIntMap;
@@ -97,7 +96,7 @@ public class JavaArrangementParseInfo {
     ArrangementEntryDependencyInfo result = new ArrangementEntryDependencyInfo(entry);
     Stack<Pair<PsiMethod, ArrangementEntryDependencyInfo>> toProcess = new Stack<Pair<PsiMethod, ArrangementEntryDependencyInfo>>();
     toProcess.push(Pair.create(method, result));
-    Set<PsiMethod> usedMethods = ContainerUtilRt.newHashSet();
+    Set<PsiMethod> usedMethods = new HashSet<>();
     while (!toProcess.isEmpty()) {
       Pair<PsiMethod, ArrangementEntryDependencyInfo> pair = toProcess.pop();
       Set<PsiMethod> dependentMethods = myMethodDependencies.get(pair.first);

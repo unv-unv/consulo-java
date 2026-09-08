@@ -22,14 +22,13 @@ import com.siyeh.ig.BaseInspectionVisitor;
 import com.siyeh.ig.psiutils.ExpressionUtils;
 import com.siyeh.localize.InspectionGadgetsLocalize;
 import consulo.annotation.component.ExtensionImpl;
-import consulo.ide.impl.idea.util.containers.ContainerUtilRt;
 import consulo.localize.LocalizeValue;
 
 import java.util.Set;
 
 @ExtensionImpl
 public class PlaceholderCountMatchesArgumentCountInspection extends BaseInspection {
-    private static final Set<String> loggingMethodNames = ContainerUtilRt.newHashSet("trace", "debug", "info", "warn", "error");
+    private static final Set<String> loggingMethodNames = Set.of("trace", "debug", "info", "warn", "error");
 
     @Override
     public LocalizeValue getDisplayName() {

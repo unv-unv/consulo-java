@@ -29,7 +29,7 @@ import com.intellij.java.language.psi.*;
 import consulo.annotation.access.RequiredReadAction;
 import consulo.annotation.access.RequiredWriteAction;
 import consulo.annotation.component.ExtensionImpl;
-import consulo.ide.impl.idea.openapi.project.ProjectUtil;
+import consulo.project.ui.util.ProjectUIUtil;
 import consulo.java.deadCodeNotWorking.OldStyleInspection;
 import consulo.language.editor.FileModificationService;
 import consulo.language.editor.inspection.*;
@@ -254,7 +254,7 @@ public class UnusedParametersInspection extends GlobalJavaBatchInspectionTool im
     @Override
     public JComponent createOptionsPanel() {
         JPanel panel = new JPanel(new GridBagLayout());
-        Project project = ProjectUtil.guessCurrentProject(panel);
+        Project project = ProjectUIUtil.guessCurrentProject(panel);
         panel.add(
             TargetAWT.to(EntryPointsManager.getInstance(project).createConfigureAnnotationsBtn()),
             new GridBagConstraints(

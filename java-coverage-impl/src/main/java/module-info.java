@@ -11,7 +11,8 @@ module consulo.java.coverage.impl {
     requires consulo.java.debugger.api;
     requires consulo.java.debugger.impl;
 
-    requires consulo.ide.impl;
+    requires consulo.language.impl;
+
     requires consulo.execution.coverage.api;
     requires consulo.compiler.api;
     requires consulo.execution.api;

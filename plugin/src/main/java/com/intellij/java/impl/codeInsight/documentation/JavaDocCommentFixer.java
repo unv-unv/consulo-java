@@ -28,7 +28,6 @@ import consulo.annotation.component.ExtensionImpl;
 import consulo.codeEditor.Editor;
 import consulo.document.Document;
 import consulo.document.util.TextRange;
-import consulo.ide.impl.idea.util.containers.ContainerUtilRt;
 import consulo.language.Language;
 import consulo.language.editor.documentation.DocCommentFixer;
 import consulo.language.editor.inspection.ProblemDescriptor;
@@ -73,7 +72,7 @@ public class JavaDocCommentFixer implements DocCommentFixer {
    *   }
    * </pre>
    */
-  private static final Set<String> CARET_ANCHOR_TAGS = ContainerUtilRt.newHashSet(PARAM_TAG, "@throws", "@return");
+  private static final Set<String> CARET_ANCHOR_TAGS = Set.of(PARAM_TAG, "@throws", "@return");
 
   private static final Comparator<PsiElement> COMPARATOR = (e1, e2) -> e2.getTextRange().getEndOffset() - e1.getTextRange().getEndOffset();
 

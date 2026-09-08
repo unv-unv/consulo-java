@@ -22,7 +22,7 @@ import consulo.annotation.component.ExtensionImpl;
 import consulo.application.Application;
 import consulo.codeEditor.Editor;
 import consulo.document.Document;
-import consulo.ide.impl.idea.openapi.editor.EditorModificationUtil;
+import consulo.codeEditor.util.EditorModificationUtil;
 import consulo.language.Language;
 import consulo.language.editor.completion.CompletionInitializationContext;
 import consulo.language.editor.postfixTemplate.PostfixTemplate;

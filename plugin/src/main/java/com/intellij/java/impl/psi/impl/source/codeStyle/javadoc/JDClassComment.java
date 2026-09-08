@@ -16,9 +16,9 @@
 package com.intellij.java.impl.psi.impl.source.codeStyle.javadoc;
 
 import java.util.List;
+import java.util.ArrayList;
 
 
-import consulo.ide.impl.idea.util.containers.ContainerUtilRt;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -64,7 +64,7 @@ public class JDClassComment extends JDParamListOwnerComment
 	{
 		if(myAuthorsList == null)
 		{
-			myAuthorsList = ContainerUtilRt.newArrayList();
+			myAuthorsList = new ArrayList<>();
 		}
 		myAuthorsList.add(author);
 	}

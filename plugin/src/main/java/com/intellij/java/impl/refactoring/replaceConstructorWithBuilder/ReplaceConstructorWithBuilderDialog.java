@@ -29,7 +29,7 @@ import com.intellij.java.language.util.TreeClassChooser;
 import com.intellij.java.language.util.TreeClassChooserFactory;
 import consulo.application.ui.wm.ApplicationIdeFocusManager;
 import consulo.configurable.ConfigurationException;
-import consulo.ide.impl.idea.util.ui.Table;
+import consulo.ui.ex.awt.table.JBTable;
 import consulo.language.editor.refactoring.localize.RefactoringLocalize;
 import consulo.language.editor.refactoring.ui.RefactoringDialog;
 import consulo.language.editor.refactoring.util.CommonRefactoringUtil;
@@ -70,7 +70,7 @@ public class ReplaceConstructorWithBuilderDialog extends RefactoringDialog {
     private static final Logger LOG = Logger.getInstance(ReplaceConstructorWithBuilderDialog.class);
     private final Map<String, ParameterData> myParametersMap = new LinkedHashMap<>();
     private MyTableModel myTableModel;
-    private Table myTable;
+    private JBTable myTable;
     private static final String RECENT_KEYS = "ReplaceConstructorWithBuilder.RECENT_KEYS";
 
     protected ReplaceConstructorWithBuilderDialog(Project project, PsiMethod[] constructors) {
@@ -196,7 +196,7 @@ public class ReplaceConstructorWithBuilderDialog extends RefactoringDialog {
 
     private JScrollPane createTablePanel() {
         myTableModel = new MyTableModel();
-        myTable = new Table(myTableModel);
+        myTable = new JBTable(myTableModel);
         myTable.setSurrendersFocusOnKeystroke(true);
         myTable.getTableHeader().setReorderingAllowed(false);
 

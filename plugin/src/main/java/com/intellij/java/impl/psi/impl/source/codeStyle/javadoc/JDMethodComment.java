@@ -16,10 +16,10 @@
 package com.intellij.java.impl.psi.impl.source.codeStyle.javadoc;
 
 import java.util.List;
+import java.util.ArrayList;
 
 import org.jspecify.annotations.Nullable;
 
-import consulo.ide.impl.idea.util.containers.ContainerUtilRt;
 
 /**
  * Method comment
@@ -78,7 +78,7 @@ public class JDMethodComment extends JDParamListOwnerComment
 	{
 		if(myThrowsList == null)
 		{
-			myThrowsList = ContainerUtilRt.newArrayList();
+			myThrowsList = new ArrayList<>();
 		}
 		myThrowsList.add(new TagDescription(className, description));
 	}

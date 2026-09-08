@@ -18,7 +18,7 @@ package consulo.java.impl.module.extension;
 
 import consulo.content.bundle.Sdk;
 import consulo.util.lang.Comparing;
-import consulo.ide.impl.idea.util.NotNullFunction;
+import java.util.function.Function;
 import consulo.module.extension.ModuleExtensionWithSdk;
 
 
@@ -29,7 +29,7 @@ import consulo.module.extension.ModuleExtensionWithSdk;
 public class LazyValueBySdk<T> {
   private ModuleExtensionWithSdk<?> myExtension;
 
-  private NotNullFunction<Sdk, T> myFunc;
+  private Function<Sdk, T> myFunc;
 
   private final T myDefaultValue;
 
@@ -37,7 +37,7 @@ public class LazyValueBySdk<T> {
 
   private Sdk myLastSdk;
 
-  public LazyValueBySdk(ModuleExtensionWithSdk<?> extension, T defaultValue, NotNullFunction<Sdk, T> func) {
+  public LazyValueBySdk(ModuleExtensionWithSdk<?> extension, T defaultValue, Function<Sdk, T> func) {
     myExtension = extension;
     myFunc = func;
     myDefaultValue = defaultValue;

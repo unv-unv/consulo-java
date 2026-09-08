@@ -29,7 +29,7 @@ import com.intellij.java.language.psi.util.PsiUtil;
 import consulo.undoRedo.CommandProcessor;
 import consulo.document.Document;
 import consulo.codeEditor.Editor;
-import consulo.ide.impl.idea.openapi.editor.EditorModificationUtil;
+import consulo.codeEditor.util.EditorModificationUtil;
 import consulo.codeEditor.EditorEx;
 import consulo.codeEditor.HighlighterIterator;
 import consulo.virtualFileSystem.fileType.FileType;

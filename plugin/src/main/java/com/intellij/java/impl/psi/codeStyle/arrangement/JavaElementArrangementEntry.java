@@ -16,13 +16,13 @@
 package com.intellij.java.impl.psi.codeStyle.arrangement;
 
 import consulo.document.util.TextRange;
-import consulo.ide.impl.idea.util.containers.ContainerUtilRt;
 import consulo.language.codeStyle.arrangement.*;
 import consulo.language.codeStyle.arrangement.std.ArrangementSettingsToken;
 import consulo.util.lang.StringUtil;
 
 import org.jspecify.annotations.Nullable;
 import java.util.Set;
+import java.util.HashSet;
 
 /**
  * Not thread-safe.
@@ -34,8 +34,8 @@ public class JavaElementArrangementEntry extends DefaultArrangementEntry
   implements TypeAwareArrangementEntry, NameAwareArrangementEntry,ModifierAwareArrangementEntry
 {
 
-  private final Set<ArrangementSettingsToken> myModifiers = ContainerUtilRt.newHashSet();
-  private final Set<ArrangementSettingsToken> myTypes     = ContainerUtilRt.newHashSet();
+  private final Set<ArrangementSettingsToken> myModifiers = new HashSet<>();
+  private final Set<ArrangementSettingsToken> myTypes     = new HashSet<>();
 
   private final  ArrangementSettingsToken myType;
   @Nullable private final String                   myName;

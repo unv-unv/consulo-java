@@ -17,10 +17,10 @@
 package com.intellij.java.impl.psi.impl.source.codeStyle.javadoc;
 
 import java.util.List;
+import java.util.ArrayList;
 
 import org.jspecify.annotations.Nullable;
 import consulo.util.lang.StringUtil;
-import consulo.ide.impl.idea.util.containers.ContainerUtilRt;
 
 public class JDParamListOwnerComment extends JDComment
 {
@@ -62,7 +62,7 @@ public class JDParamListOwnerComment extends JDComment
 	{
 		if(myParamsList == null)
 		{
-			myParamsList = ContainerUtilRt.newArrayList();
+			myParamsList = new ArrayList<>();
 		}
 		myParamsList.add(new TagDescription(name, description));
 	}

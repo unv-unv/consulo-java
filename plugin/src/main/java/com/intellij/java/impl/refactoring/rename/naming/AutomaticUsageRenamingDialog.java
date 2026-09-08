@@ -17,7 +17,7 @@ package com.intellij.java.impl.refactoring.rename.naming;
 
 import consulo.application.Application;
 import consulo.ide.impl.idea.ui.components.panels.ValidatingComponent;
-import consulo.ide.impl.idea.util.ui.Table;
+import consulo.ui.ex.awt.table.JBTable;
 import consulo.ide.localize.IdeLocalize;
 import consulo.language.editor.refactoring.RefactoringBundle;
 import consulo.language.editor.refactoring.localize.RefactoringLocalize;
@@ -53,7 +53,7 @@ public class AutomaticUsageRenamingDialog<T> extends DialogWrapper {
   private boolean[] myShouldRename;
   private String[] myNewNames;
   private MyTableModel myTableModel;
-  private Table myTable;
+  private JBTable myTable;
   private DocumentAdapter myCellEditorListener;
   private ValidatingComponent myValidatingComponent;
 
@@ -185,7 +185,7 @@ public class AutomaticUsageRenamingDialog<T> extends DialogWrapper {
   }
 
   private void setupTable() {
-    myTable = new Table();
+    myTable = new JBTable();
     myTableModel = new MyTableModel();
     myTable.setModel(myTableModel);
 

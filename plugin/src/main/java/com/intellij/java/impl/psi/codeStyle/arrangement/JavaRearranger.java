@@ -24,7 +24,6 @@ import consulo.colorScheme.TextAttributes;
 import consulo.colorScheme.TextAttributesKey;
 import consulo.document.Document;
 import consulo.document.util.TextRange;
-import consulo.ide.impl.idea.util.containers.ContainerUtilRt;
 import consulo.language.Language;
 import consulo.language.codeStyle.CodeStyleSettings;
 import consulo.language.codeStyle.CommonCodeStyleSettings;
@@ -45,6 +44,7 @@ import org.jspecify.annotations.Nullable;
 import java.awt.*;
 import java.util.List;
 import java.util.*;
+import consulo.util.collection.ContainerUtil;
 
 import static consulo.language.codeStyle.arrangement.std.StdArrangementTokens.EntryType.*;
 import static consulo.language.codeStyle.arrangement.std.StdArrangementTokens.General.*;
@@ -61,18 +61,18 @@ public class JavaRearranger implements Rearranger<JavaElementArrangementEntry>, 
     ArrangementStandardSettingsAware, ArrangementColorsAware {
 
   // Type
-  private static final Set<ArrangementSettingsToken> SUPPORTED_TYPES = ContainerUtilRt.newLinkedHashSet(FIELD, CONSTRUCTOR, METHOD, CLASS,
-      INTERFACE, ENUM);
+  private static final Set<ArrangementSettingsToken> SUPPORTED_TYPES = new LinkedHashSet<>(Arrays.asList(FIELD, CONSTRUCTOR, METHOD, CLASS,
+      INTERFACE, ENUM));
   // Modifier
-  private static final Set<ArrangementSettingsToken> SUPPORTED_MODIFIERS = ContainerUtilRt.newLinkedHashSet(PUBLIC, PROTECTED, PACKAGE_PRIVATE,
-      PRIVATE, STATIC, FINAL, ABSTRACT, SYNCHRONIZED, TRANSIENT, VOLATILE);
-  private static final List<ArrangementSettingsToken> SUPPORTED_ORDERS = ContainerUtilRt.newArrayList(KEEP, BY_NAME);
+  private static final Set<ArrangementSettingsToken> SUPPORTED_MODIFIERS = new LinkedHashSet<>(Arrays.asList(PUBLIC, PROTECTED, PACKAGE_PRIVATE,
+      PRIVATE, STATIC, FINAL, ABSTRACT, SYNCHRONIZED, TRANSIENT, VOLATILE));
+  private static final List<ArrangementSettingsToken> SUPPORTED_ORDERS = List.of(KEEP, BY_NAME);
   private static final ArrangementSettingsToken NO_TYPE = new ArrangementSettingsToken("NO_TYPE", "NO_TYPE");
-  private static final Map<ArrangementSettingsToken, Set<ArrangementSettingsToken>> MODIFIERS_BY_TYPE = ContainerUtilRt.newHashMap();
-  private static final Collection<Set<ArrangementSettingsToken>> MUTEXES = ContainerUtilRt.newArrayList();
+  private static final Map<ArrangementSettingsToken, Set<ArrangementSettingsToken>> MODIFIERS_BY_TYPE = new HashMap<>();
+  private static final Collection<Set<ArrangementSettingsToken>> MUTEXES = new ArrayList<>();
 
   static {
-    Set<ArrangementSettingsToken> visibilityModifiers = ContainerUtilRt.newHashSet(PUBLIC, PROTECTED, PACKAGE_PRIVATE, PRIVATE);
+    Set<ArrangementSettingsToken> visibilityModifiers = new HashSet<>(Arrays.asList(PUBLIC, PROTECTED, PACKAGE_PRIVATE, PRIVATE));
     MUTEXES.add(visibilityModifiers);
     MUTEXES.add(SUPPORTED_TYPES);
 
@@ -87,19 +87,19 @@ public class JavaRearranger implements Rearranger<JavaElementArrangementEntry>, 
     MODIFIERS_BY_TYPE.put(FIELD, concat(commonModifiers, TRANSIENT, VOLATILE));
   }
 
-  private static final Map<ArrangementSettingsToken, List<ArrangementSettingsToken>> GROUPING_RULES = ContainerUtilRt.newLinkedHashMap();
+  private static final Map<ArrangementSettingsToken, List<ArrangementSettingsToken>> GROUPING_RULES = new LinkedHashMap<>();
 
   static {
     GROUPING_RULES.put(GETTERS_AND_SETTERS, Collections.<ArrangementSettingsToken>emptyList());
-    GROUPING_RULES.put(OVERRIDDEN_METHODS, ContainerUtilRt.newArrayList(BY_NAME, KEEP));
-    GROUPING_RULES.put(DEPENDENT_METHODS, ContainerUtilRt.newArrayList(BREADTH_FIRST, DEPTH_FIRST));
+    GROUPING_RULES.put(OVERRIDDEN_METHODS, List.of(BY_NAME, KEEP));
+    GROUPING_RULES.put(DEPENDENT_METHODS, List.of(BREADTH_FIRST, DEPTH_FIRST));
   }
 
   private static final StdArrangementSettings DEFAULT_SETTINGS;
 
   static {
-    List<ArrangementGroupingRule> groupingRules = ContainerUtilRt.newArrayList(new ArrangementGroupingRule(GETTERS_AND_SETTERS));
-    List<StdArrangementMatchRule> matchRules = ContainerUtilRt.newArrayList();
+    List<ArrangementGroupingRule> groupingRules = ContainerUtil.newArrayList(new ArrangementGroupingRule(GETTERS_AND_SETTERS));
+    List<StdArrangementMatchRule> matchRules = new ArrayList<>();
     ArrangementSettingsToken[] visibility = {
         PUBLIC,
         PROTECTED,
@@ -133,7 +133,7 @@ public class JavaRearranger implements Rearranger<JavaElementArrangementEntry>, 
   private static final DefaultArrangementSettingsSerializer SETTINGS_SERIALIZER = new DefaultArrangementSettingsSerializer(DEFAULT_SETTINGS);
 
   private static Set<ArrangementSettingsToken> concat(Set<ArrangementSettingsToken> base, ArrangementSettingsToken... modifiers) {
-    Set<ArrangementSettingsToken> result = ContainerUtilRt.newHashSet(base);
+    Set<ArrangementSettingsToken> result = new HashSet<>(base);
     Collections.addAll(result, modifiers);
     return result;
   }
@@ -297,7 +297,7 @@ public class JavaRearranger implements Rearranger<JavaElementArrangementEntry>, 
   @Nullable
   @Override
   public List<CompositeArrangementSettingsToken> getSupportedGroupingTokens() {
-    return ContainerUtilRt.newArrayList(new CompositeArrangementSettingsToken(GETTERS_AND_SETTERS),
+    return ContainerUtil.newArrayList(new CompositeArrangementSettingsToken(GETTERS_AND_SETTERS),
         new CompositeArrangementSettingsToken(OVERRIDDEN_METHODS, BY_NAME, KEEP), new CompositeArrangementSettingsToken(DEPENDENT_METHODS,
             BREADTH_FIRST, DEPTH_FIRST));
   }
@@ -305,7 +305,7 @@ public class JavaRearranger implements Rearranger<JavaElementArrangementEntry>, 
   @Nullable
   @Override
   public List<CompositeArrangementSettingsToken> getSupportedMatchingTokens() {
-    return ContainerUtilRt.newArrayList(new CompositeArrangementSettingsToken(TYPE, SUPPORTED_TYPES),
+    return ContainerUtil.newArrayList(new CompositeArrangementSettingsToken(TYPE, SUPPORTED_TYPES),
         new CompositeArrangementSettingsToken(MODIFIER, SUPPORTED_MODIFIERS), new CompositeArrangementSettingsToken(StdArrangementTokens
             .Regexp.NAME), new CompositeArrangementSettingsToken(ORDER, KEEP, BY_NAME));
   }

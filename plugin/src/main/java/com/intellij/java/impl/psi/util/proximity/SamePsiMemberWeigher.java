@@ -18,7 +18,7 @@ package com.intellij.java.impl.psi.util.proximity;
 import com.intellij.java.language.psi.PsiClass;
 import com.intellij.java.language.psi.PsiMember;
 import consulo.annotation.component.ExtensionImpl;
-import consulo.ide.impl.idea.util.NotNullFunction;
+import java.util.function.Function;
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiFile;
 import consulo.language.psi.util.PsiTreeUtil;
@@ -31,13 +31,13 @@ import consulo.util.dataholder.NotNullLazyKey;
  */
 @ExtensionImpl(id = "samePsiMember", order = "before explicitlyImported")
 public class SamePsiMemberWeigher extends ProximityWeigher {
-  private static final NotNullLazyKey<Boolean, ProximityLocation> INSIDE_PSI_MEMBER = NotNullLazyKey.create("insidePsiMember", new NotNullFunction<ProximityLocation, Boolean>() {
+  private static final NotNullLazyKey<Boolean, ProximityLocation> INSIDE_PSI_MEMBER = NotNullLazyKey.create("insidePsiMember", new Function<ProximityLocation, Boolean>() {
     @Override
     public Boolean apply(ProximityLocation proximityLocation) {
       return PsiTreeUtil.getContextOfType(proximityLocation.getPosition(), PsiMember.class, false) != null;
     }
   });
-  private static final NotNullLazyKey<PsiElement, ProximityLocation> PHYSICAL_POSITION = NotNullLazyKey.create("physicalPosition", new NotNullFunction<ProximityLocation, PsiElement>() {
+  private static final NotNullLazyKey<PsiElement, ProximityLocation> PHYSICAL_POSITION = NotNullLazyKey.create("physicalPosition", new Function<ProximityLocation, PsiElement>() {
     @Override
     public PsiElement apply(ProximityLocation location) {
       PsiElement position = location.getPosition();

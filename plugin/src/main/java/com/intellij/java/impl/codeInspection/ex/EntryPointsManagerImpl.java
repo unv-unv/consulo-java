@@ -31,7 +31,7 @@ import consulo.component.persist.PersistentStateComponent;
 import consulo.component.persist.State;
 import consulo.component.persist.Storage;
 import consulo.component.persist.StoragePathMacros;
-import consulo.ide.impl.idea.openapi.project.ProjectUtil;
+import consulo.project.ui.util.ProjectUIUtil;
 import consulo.language.editor.DaemonCodeAnalyzer;
 import consulo.localize.LocalizeValue;
 import consulo.project.Project;
@@ -92,7 +92,7 @@ public class EntryPointsManagerImpl extends EntryPointsManagerBase implements Pe
 
   public static Button createConfigureAnnotationsButton() {
     Button configureAnnotations = Button.create(LocalizeValue.localizeTODO("Configure annotations..."));
-    configureAnnotations.addClickListener(e -> getInstance(ProjectUtil.guessCurrentProject((JComponent)TargetAWT.to(configureAnnotations))).configureAnnotations());
+    configureAnnotations.addClickListener(e -> getInstance(ProjectUIUtil.guessCurrentProject((JComponent)TargetAWT.to(configureAnnotations))).configureAnnotations());
     return configureAnnotations;
   }
 }

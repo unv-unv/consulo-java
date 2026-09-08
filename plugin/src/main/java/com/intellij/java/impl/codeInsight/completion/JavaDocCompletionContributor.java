@@ -36,7 +36,7 @@ import consulo.codeEditor.CaretModel;
 import consulo.codeEditor.Editor;
 import consulo.codeEditor.ScrollType;
 import consulo.document.Document;
-import consulo.ide.impl.idea.openapi.editor.EditorModificationUtil;
+import consulo.codeEditor.util.EditorModificationUtil;
 import consulo.language.Language;
 import consulo.language.codeStyle.CodeStyleSettings;
 import consulo.language.codeStyle.CodeStyleSettingsManager;

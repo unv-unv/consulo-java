@@ -21,7 +21,6 @@ import com.intellij.java.language.psi.util.MethodSignatureBackedByPsiMethod;
 import com.intellij.java.language.psi.util.PropertyUtil;
 import consulo.document.Document;
 import consulo.document.util.TextRange;
-import consulo.ide.impl.idea.util.containers.ContainerUtilRt;
 import consulo.language.codeStyle.arrangement.ArrangementSettings;
 import consulo.language.codeStyle.arrangement.ArrangementUtil;
 import consulo.language.codeStyle.arrangement.DefaultArrangementEntry;
@@ -45,7 +44,7 @@ public class JavaArrangementVisitor extends JavaRecursiveElementVisitor {
 
   private static final String NULL_CONTENT = "no content";
 
-  private static final Map<String, ArrangementSettingsToken> MODIFIERS = ContainerUtilRt.newHashMap();
+  private static final Map<String, ArrangementSettingsToken> MODIFIERS = new HashMap<>();
 
   static {
     MODIFIERS.put(PsiModifier.PUBLIC, PUBLIC);
@@ -109,7 +108,7 @@ public class JavaArrangementVisitor extends JavaRecursiveElementVisitor {
   }
 
   private static Set<ArrangementSettingsToken> getGroupingRules(ArrangementSettings settings) {
-    Set<ArrangementSettingsToken> groupingRules = ContainerUtilRt.newHashSet();
+    Set<ArrangementSettingsToken> groupingRules = new HashSet<>();
     for (ArrangementGroupingRule rule : settings.getGroupings()) {
       groupingRules.add(rule.getGroupingType());
     }

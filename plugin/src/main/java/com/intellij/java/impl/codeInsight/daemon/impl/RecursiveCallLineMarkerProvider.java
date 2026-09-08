@@ -22,7 +22,6 @@ import consulo.annotation.component.ExtensionImpl;
 import consulo.application.AllIcons;
 import consulo.application.progress.ProgressManager;
 import consulo.codeEditor.markup.GutterIconRenderer;
-import consulo.ide.impl.idea.util.FunctionUtil;
 import consulo.language.Language;
 import consulo.language.editor.Pass;
 import consulo.language.editor.gutter.LineMarkerInfo;
@@ -101,7 +100,7 @@ public class RecursiveCallLineMarkerProvider extends LineMarkerProviderDescripto
 
   private static class RecursiveMethodCallMarkerInfo extends LineMarkerInfo<PsiMethodCallExpression> {
     private RecursiveMethodCallMarkerInfo(PsiMethodCallExpression methodCall) {
-      super(methodCall, methodCall.getTextRange(), AllIcons.Gutter.RecursiveMethod, Pass.LINE_MARKERS, FunctionUtil.constant("Recursive call"), null, GutterIconRenderer.Alignment.RIGHT);
+      super(methodCall, methodCall.getTextRange(), AllIcons.Gutter.RecursiveMethod, Pass.LINE_MARKERS, _ -> "Recursive call", null, GutterIconRenderer.Alignment.RIGHT);
     }
 
     @Override

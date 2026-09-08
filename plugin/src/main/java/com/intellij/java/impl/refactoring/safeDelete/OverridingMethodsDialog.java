@@ -23,7 +23,7 @@ import com.intellij.java.language.psi.util.PsiFormatUtilBase;
 import consulo.application.HelpManager;
 import consulo.disposer.Disposable;
 import consulo.disposer.Disposer;
-import consulo.ide.impl.idea.util.ui.Table;
+import consulo.ui.ex.awt.table.JBTable;
 import consulo.language.editor.refactoring.localize.RefactoringLocalize;
 import consulo.project.Project;
 import consulo.ui.ex.awt.BooleanTableCellRenderer;
@@ -58,7 +58,7 @@ class OverridingMethodsDialog extends DialogWrapper {
   private final boolean[] myChecked;
 
   private static final int CHECK_COLUMN = 0;
-  private Table myTable;
+  private JBTable myTable;
   private final UsagePreviewPanel myUsagePreviewPanel;
 
   public OverridingMethodsDialog(Project project, List<UsageInfo> overridingMethods) {
@@ -133,7 +133,7 @@ class OverridingMethodsDialog extends DialogWrapper {
     JPanel panel = new JPanel(new BorderLayout());
     panel.setBorder(BorderFactory.createEmptyBorder(8, 0, 4, 0));
     final MyTableModel tableModel = new MyTableModel();
-    myTable = new Table(tableModel);
+    myTable = new JBTable(tableModel);
     myTable.setShowGrid(false);
 
     TableColumnModel columnModel = myTable.getColumnModel();

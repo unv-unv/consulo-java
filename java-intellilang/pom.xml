@@ -100,12 +100,5 @@
             <artifactId>consulo.java-java.analysis.impl</artifactId>
             <version>${project.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>consulo</groupId>
-            <artifactId>consulo-ide-impl</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
     </dependencies>
 </project>

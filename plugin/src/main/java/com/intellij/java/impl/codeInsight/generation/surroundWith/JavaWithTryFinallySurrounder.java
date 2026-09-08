@@ -20,7 +20,7 @@ import consulo.annotation.access.RequiredReadAction;
 import consulo.codeEditor.Editor;
 import consulo.document.Document;
 import consulo.document.util.TextRange;
-import consulo.ide.impl.idea.openapi.editor.EditorModificationUtil;
+import consulo.codeEditor.util.EditorModificationUtil;
 import consulo.language.codeStyle.CodeStyleManager;
 import consulo.language.editor.localize.CodeInsightLocalize;
 import consulo.language.psi.PsiDocumentManager;
