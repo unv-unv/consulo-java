@@ -18,26 +18,26 @@ package com.intellij.java.language.psi;
 import consulo.util.collection.ArrayFactory;
 
 import org.jspecify.annotations.Nullable;
+
 import java.util.function.Function;
 
 /**
  * Represents a Java expression.
  */
 public interface PsiExpression extends PsiAnnotationMemberValue, PsiCaseLabelElement {
-  /**
-   * The empty array of PSI expressions which can be reused to avoid unnecessary allocations.
-   */
-  PsiExpression[] EMPTY_ARRAY = new PsiExpression[0];
+    /**
+     * The empty array of PSI expressions which can be reused to avoid unnecessary allocations.
+     */
+    PsiExpression[] EMPTY_ARRAY = new PsiExpression[0];
 
-  ArrayFactory<PsiExpression> ARRAY_FACTORY = count -> count == 0 ? PsiExpression.EMPTY_ARRAY : new PsiExpression[count];
+    ArrayFactory<PsiExpression> ARRAY_FACTORY = count -> count == 0 ? PsiExpression.EMPTY_ARRAY : new PsiExpression[count];
 
-  Function<PsiExpression, PsiType> EXPRESSION_TO_TYPE = PsiExpression::getType;
+    Function<PsiExpression, PsiType> EXPRESSION_TO_TYPE = PsiExpression::getType;
 
-  /**
-   * Returns the type of the expression.
-   *
-   * @return the expression type, or null if the type is not known.
-   */
-  @Nullable
-  PsiType getType();
+    /**
+     * Returns the type of the expression.
+     *
+     * @return the expression type, or null if the type is not known.
+     */
+    @Nullable PsiType getType();
 }

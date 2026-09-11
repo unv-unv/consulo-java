@@ -17,16 +17,17 @@ package com.intellij.java.impl.codeInsight.daemon.impl.quickfix;
 
 import com.intellij.java.language.psi.*;
 import com.intellij.java.language.psi.util.InheritanceUtil;
+import consulo.annotation.access.RequiredReadAction;
 import consulo.annotation.component.ExtensionImpl;
 import consulo.codeEditor.Editor;
 import consulo.codeEditor.SelectionModel;
 import consulo.document.util.TextRange;
-import consulo.ide.impl.idea.codeInsight.template.impl.InvokeTemplateAction;
 import consulo.language.editor.intention.IntentionAction;
 import consulo.language.editor.intention.IntentionMetaData;
 import consulo.language.editor.template.Template;
 import consulo.language.editor.template.TemplateManager;
 import consulo.language.editor.template.TemplateSettings;
+import consulo.language.editor.template.context.TemplateActionContext;
 import consulo.language.psi.PsiComment;
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiFile;
@@ -34,115 +35,129 @@ import consulo.language.psi.PsiWhiteSpace;
 import consulo.language.psi.util.PsiTreeUtil;
 import consulo.language.util.IncorrectOperationException;
 import consulo.localize.LocalizeValue;
-import consulo.logging.Logger;
 import consulo.project.Project;
+import consulo.ui.annotation.RequiredUIAccess;
 import org.jspecify.annotations.Nullable;
 
-import java.util.HashSet;
+import java.util.Objects;
 
 /**
- * User: anna
+ * @author anna
  */
 @ExtensionImpl
 @IntentionMetaData(ignoreId = "java.IterateOverIterableIntention", categories = {"Java", "Control Flow"}, fileExtensions = "java")
 public class IterateOverIterableIntention implements IntentionAction {
-  private static final Logger LOG = Logger.getInstance(IterateOverIterableIntention.class);
-
-  @Override
-  public boolean isAvailable(Project project, Editor editor, PsiFile file) {
-    Template template = getTemplate();
-    if (template != null) {
-      int offset = editor.getCaretModel().getOffset();
-      int startOffset = offset;
-      if (editor.getSelectionModel().hasSelection()) {
-        int selStart = editor.getSelectionModel().getSelectionStart();
-        int selEnd = editor.getSelectionModel().getSelectionEnd();
-        startOffset = (offset == selStart) ? selEnd : selStart;
-      }
-      PsiElement element = file.findElementAt(startOffset);
-      while (element instanceof PsiWhiteSpace) {
-        element = element.getPrevSibling();
-      }
-      PsiStatement psiStatement = PsiTreeUtil.getParentOfType(element, PsiStatement.class, false);
-      if (psiStatement != null) {
-        startOffset = psiStatement.getTextRange().getStartOffset();
-      }
-      if (!template.isDeactivated() &&
-          (TemplateManager.getInstance(project).isApplicable(file, offset, template) ||
-           (TemplateManager.getInstance(project).isApplicable(file, startOffset, template)))) {
-        return getIterableExpression(editor, file) != null;
-      }
-    }
-    return false;
-  }
-
-  @Nullable
-  private static Template getTemplate() {
-    return TemplateSettings.getInstance().getTemplate("I", "surround");
-  }
-
-
-  @Override
-  public LocalizeValue getText() {
-    return LocalizeValue.localizeTODO("Iterate");
-  }
-  
-  @Nullable
-  private static PsiExpression getIterableExpression(Editor editor, PsiFile file) {
-    SelectionModel selectionModel = editor.getSelectionModel();
-    if (selectionModel.hasSelection()) {
-      PsiElement elementAtStart = file.findElementAt(selectionModel.getSelectionStart());
-      PsiElement elementAtEnd = file.findElementAt(selectionModel.getSelectionEnd() - 1);
-      if (elementAtStart == null || elementAtStart instanceof PsiWhiteSpace || elementAtStart instanceof PsiComment) {
-        elementAtStart = PsiTreeUtil.skipSiblingsForward(elementAtStart, PsiWhiteSpace.class, PsiComment.class);
-        if (elementAtStart == null) return null;
-      }
-      if (elementAtEnd == null || elementAtEnd instanceof PsiWhiteSpace || elementAtEnd instanceof PsiComment) {
-        elementAtEnd = PsiTreeUtil.skipSiblingsBackward(elementAtEnd, PsiWhiteSpace.class, PsiComment.class);
-        if (elementAtEnd == null) return null;
-      }
-      PsiElement parent = PsiTreeUtil.findCommonParent(elementAtStart, elementAtEnd);
-      if (parent instanceof PsiExpression) {
-        PsiType type = ((PsiExpression)parent).getType();
-        return type instanceof PsiArrayType || InheritanceUtil.isInheritor(type, CommonClassNames.JAVA_LANG_ITERABLE)
-               ? (PsiExpression)parent
-               : null;
-      }
-      return null;
+    @Override
+    @RequiredReadAction
+    public boolean isAvailable(Project project, Editor editor, PsiFile file) {
+        Template template = getTemplate();
+        if (template != null) {
+            int offset = editor.getCaretModel().getOffset();
+            int startOffset = offset;
+            if (editor.getSelectionModel().hasSelection()) {
+                int selStart = editor.getSelectionModel().getSelectionStart();
+                int selEnd = editor.getSelectionModel().getSelectionEnd();
+                startOffset = (offset == selStart) ? selEnd : selStart;
+            }
+            PsiElement element = file.findElementAt(startOffset);
+            while (element instanceof PsiWhiteSpace whiteSpace) {
+                element = whiteSpace.getPrevSibling();
+            }
+            PsiStatement psiStatement = PsiTreeUtil.getParentOfType(element, PsiStatement.class, false);
+            if (psiStatement != null) {
+                startOffset = psiStatement.getTextRange().getStartOffset();
+            }
+            TemplateManager templateManager = TemplateManager.getInstance(project);
+            if (!template.isDeactivated() &&
+                (templateManager.isApplicable(template, TemplateActionContext.expanding(file, offset)) ||
+                    templateManager.isApplicable(template, TemplateActionContext.expanding(file, startOffset)))) {
+                return getIterableExpression(editor, file) != null;
+            }
+        }
+        return false;
     }
 
-    PsiElement element = file.findElementAt(editor.getCaretModel().getOffset());
-    while (element instanceof PsiWhiteSpace) {
-      element = element.getPrevSibling();
+    private static @Nullable Template getTemplate() {
+        return TemplateSettings.getInstance().getTemplate("I", "surround");
     }
-    if (element instanceof PsiExpressionStatement) {
-      element = ((PsiExpressionStatement)element).getExpression().getLastChild();
-    }
-    while ((element = PsiTreeUtil.getParentOfType(element, PsiExpression.class, true)) != null) {
-      PsiElement parent = element.getParent();
-      if (parent instanceof PsiMethodCallExpression) continue;
-      if (!(parent instanceof PsiExpressionStatement)) return null;
-      PsiType type = ((PsiExpression)element).getType();
-      if (type instanceof PsiArrayType || InheritanceUtil.isInheritor(type, CommonClassNames.JAVA_LANG_ITERABLE)) return (PsiExpression)element;
-    }
-    return null;
-  }
 
-  @Override
-  public void invoke(Project project, Editor editor, PsiFile file) throws IncorrectOperationException {
-    Template template = getTemplate();
-    SelectionModel selectionModel = editor.getSelectionModel();
-    if (!selectionModel.hasSelection()) {
-      PsiExpression iterableExpression = getIterableExpression(editor, file);
-      LOG.assertTrue(iterableExpression != null);
-      TextRange textRange = iterableExpression.getTextRange();
-      selectionModel.setSelection(textRange.getStartOffset(), textRange.getEndOffset());
+    @Override
+    public LocalizeValue getText() {
+        return LocalizeValue.localizeTODO("Iterate");
     }
-    new InvokeTemplateAction(template, editor, project, new HashSet<Character>()).perform();
-  }
 
-  @Override
-  public boolean startInWriteAction() {
-    return false;
-  }
+    @RequiredReadAction
+    private static @Nullable PsiExpression getIterableExpression(Editor editor, PsiFile file) {
+        SelectionModel selectionModel = editor.getSelectionModel();
+        if (selectionModel.hasSelection()) {
+            PsiElement elementAtStart = file.findElementAt(selectionModel.getSelectionStart());
+            PsiElement elementAtEnd = file.findElementAt(selectionModel.getSelectionEnd() - 1);
+            if (elementAtStart == null || elementAtStart instanceof PsiWhiteSpace || elementAtStart instanceof PsiComment) {
+                elementAtStart = PsiTreeUtil.skipSiblingsForward(elementAtStart, PsiWhiteSpace.class, PsiComment.class);
+                if (elementAtStart == null) {
+                    return null;
+                }
+            }
+            if (elementAtEnd == null || elementAtEnd instanceof PsiWhiteSpace || elementAtEnd instanceof PsiComment) {
+                elementAtEnd = PsiTreeUtil.skipSiblingsBackward(elementAtEnd, PsiWhiteSpace.class, PsiComment.class);
+                if (elementAtEnd == null) {
+                    return null;
+                }
+            }
+            PsiElement parent = PsiTreeUtil.findCommonParent(elementAtStart, elementAtEnd);
+            if (parent instanceof PsiExpression parentExpr) {
+                return isIterableType(parentExpr.getType()) ? parentExpr : null;
+            }
+            return null;
+        }
+
+        PsiElement element = file.findElementAt(editor.getCaretModel().getOffset());
+        while (element instanceof PsiWhiteSpace whiteSpace) {
+            element = whiteSpace.getPrevSibling();
+        }
+        if (element instanceof PsiExpressionStatement exprStmt) {
+            element = exprStmt.getExpression().getLastChild();
+        }
+
+        while ((element = PsiTreeUtil.getParentOfType(element, PsiExpression.class, true)) != null) {
+            PsiElement parent = element.getParent();
+            if (parent instanceof PsiMethodCallExpression) {
+                continue;
+            }
+            if (!(parent instanceof PsiExpressionStatement)) {
+                return null;
+            }
+            PsiExpression expr = (PsiExpression) element;
+            if (isIterableType(expr.getType())) {
+                return expr;
+            }
+        }
+        return null;
+    }
+
+    private static boolean isIterableType(@Nullable PsiType type) {
+        return type instanceof PsiArrayType || InheritanceUtil.isInheritor(type, CommonClassNames.JAVA_LANG_ITERABLE);
+    }
+
+    @Override
+    @RequiredUIAccess
+    public void invoke(Project project, Editor editor, PsiFile file) throws IncorrectOperationException {
+        Template template = getTemplate();
+        if (template == null) {
+            return;
+        }
+
+        SelectionModel selectionModel = editor.getSelectionModel();
+        if (!selectionModel.hasSelection()) {
+            PsiExpression iterableExpression = Objects.requireNonNull(getIterableExpression(editor, file));
+            TextRange textRange = iterableExpression.getTextRange();
+            selectionModel.setSelection(textRange.getStartOffset(), textRange.getEndOffset());
+        }
+        TemplateManager.getInstance(project).startTemplateForAllCarets(editor, template);
+    }
+
+    @Override
+    public boolean startInWriteAction() {
+        return false;
+    }
 }
