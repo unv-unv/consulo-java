@@ -16,13 +16,12 @@
 package com.intellij.java.language.psi.util;
 
 import com.intellij.java.language.psi.*;
-import consulo.application.util.function.Processor;
+import consulo.annotation.access.RequiredReadAction;
 import consulo.language.psi.PsiElement;
 import consulo.language.psi.PsiFile;
 import consulo.language.psi.PsiManager;
-import consulo.util.lang.function.Condition;
-import org.jspecify.annotations.Nullable;
 import org.jetbrains.annotations.Contract;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -64,12 +63,12 @@ public class InheritanceUtil {
             return true;
         }
 
-        for (final PsiClass intf : aClass.getInterfaces()) {
+        for (PsiClass intf : aClass.getInterfaces()) {
             if (!superProcessor.test(intf) || !processSupers(intf, superProcessor, visited)) {
                 return false;
             }
         }
-        final PsiClass superClass = aClass.getSuperClass();
+        PsiClass superClass = aClass.getSuperClass();
         if (superClass != null) {
             if (!superProcessor.test(superClass) || !processSupers(superClass, superProcessor, visited)) {
                 return false;
@@ -79,13 +78,13 @@ public class InheritanceUtil {
     }
 
     @Contract("null, _ -> false")
-    public static boolean isInheritor(@Nullable PsiType type, final String baseClassName) {
-        if (type instanceof PsiClassType) {
-            return isInheritor(((PsiClassType) type).resolve(), baseClassName);
+    public static boolean isInheritor(@Nullable PsiType type, String baseClassName) {
+        if (type instanceof PsiClassType classType) {
+            return isInheritor(classType.resolve(), baseClassName);
         }
 
-        if (type instanceof PsiIntersectionType) {
-            for (PsiType conjunct : ((PsiIntersectionType) type).getConjuncts()) {
+        if (type instanceof PsiIntersectionType intersectionType) {
+            for (PsiType conjunct : intersectionType.getConjuncts()) {
                 if (isInheritor(conjunct, baseClassName)) {
                     return true;
                 }
@@ -96,17 +95,17 @@ public class InheritanceUtil {
     }
 
     @Contract("null, _ -> false")
-    public static boolean isInheritor(@Nullable PsiClass psiClass, final String baseClassName) {
+    public static boolean isInheritor(@Nullable PsiClass psiClass, String baseClassName) {
         return isInheritor(psiClass, false, baseClassName);
     }
 
     @Contract("null, _, _ -> false")
-    public static boolean isInheritor(@Nullable PsiClass psiClass, final boolean strict, final String baseClassName) {
+    public static boolean isInheritor(@Nullable PsiClass psiClass, boolean strict, String baseClassName) {
         if (psiClass == null) {
             return false;
         }
 
-        final PsiClass base = JavaPsiFacade.getInstance(psiClass.getProject()).findClass(baseClassName, psiClass.getResolveScope());
+        PsiClass base = JavaPsiFacade.getInstance(psiClass.getProject()).findClass(baseClassName, psiClass.getResolveScope());
         if (base == null) {
             return false;
         }
@@ -131,8 +130,13 @@ public class InheritanceUtil {
         return result;
     }
 
-
-    private static void getSuperClassesOfList(PsiClassType[] types, Set<PsiClass> results, boolean includeNonProject, Set<PsiClass> visited, PsiManager manager) {
+    private static void getSuperClassesOfList(
+        PsiClassType[] types,
+        Set<PsiClass> results,
+        boolean includeNonProject,
+        Set<PsiClass> visited,
+        PsiManager manager
+    ) {
         for (PsiClassType type : types) {
             PsiClass resolved = type.resolve();
             if (resolved != null && visited.add(resolved)) {
@@ -144,31 +148,42 @@ public class InheritanceUtil {
         }
     }
 
-    public static boolean hasEnclosingInstanceInScope(PsiClass aClass, PsiElement scope, boolean isSuperClassAccepted, boolean isTypeParamsAccepted) {
+    @RequiredReadAction
+    public static boolean hasEnclosingInstanceInScope(
+        PsiClass aClass,
+        PsiElement scope,
+        boolean isSuperClassAccepted,
+        boolean isTypeParamsAccepted
+    ) {
         return hasEnclosingInstanceInScope(aClass, scope, psiClass -> isSuperClassAccepted, isTypeParamsAccepted);
     }
 
-    public static boolean hasEnclosingInstanceInScope(PsiClass aClass, PsiElement scope, Condition<PsiClass> isSuperClassAccepted, boolean isTypeParamsAccepted) {
+    @RequiredReadAction
+    public static boolean hasEnclosingInstanceInScope(
+        PsiClass aClass,
+        PsiElement scope,
+        Predicate<PsiClass> isSuperClassAccepted,
+        boolean isTypeParamsAccepted
+    ) {
         PsiManager manager = aClass.getManager();
         PsiElement place = scope;
         while (place != null && place != aClass && !(place instanceof PsiFile)) {
-            if (place instanceof PsiClass) {
-                if (isSuperClassAccepted.value((PsiClass) place)) {
-                    if (isInheritorOrSelf((PsiClass) place, aClass, true)) {
+            if (place instanceof PsiClass psiClass) {
+                if (isSuperClassAccepted.test(psiClass)) {
+                    if (isInheritorOrSelf(psiClass, aClass, true)) {
                         return true;
                     }
                 }
-                else {
-                    if (manager.areElementsEquivalent(place, aClass)) {
-                        return true;
-                    }
+                else if (manager.areElementsEquivalent(place, aClass)) {
+                    return true;
                 }
+
                 if (isTypeParamsAccepted && place instanceof PsiTypeParameter) {
                     return true;
                 }
             }
-            if (place instanceof PsiModifierListOwner) {
-                final PsiModifierList modifierList = ((PsiModifierListOwner) place).getModifierList();
+            if (place instanceof PsiModifierListOwner modifierListOwner) {
+                PsiModifierList modifierList = modifierListOwner.getModifierList();
                 if (modifierList != null && modifierList.hasModifierProperty(PsiModifier.STATIC)) {
                     return false;
                 }
@@ -178,24 +193,23 @@ public class InheritanceUtil {
         return place == aClass;
     }
 
-    public static boolean processSuperTypes(PsiType type, boolean includeSelf, Processor<PsiType> processor) {
-        if (includeSelf && !processor.process(type)) {
+    public static boolean processSuperTypes(PsiType type, boolean includeSelf, Predicate<PsiType> processor) {
+        if (includeSelf && !processor.test(type)) {
             return false;
         }
         return processSuperTypes(type, processor, new HashSet<>());
     }
 
-    private static boolean processSuperTypes(PsiType type, Processor<PsiType> processor, Set<PsiType> visited) {
+    private static boolean processSuperTypes(PsiType type, Predicate<PsiType> processor, Set<PsiType> visited) {
         if (!visited.add(type)) {
             return true;
         }
         for (PsiType superType : type.getSuperTypes()) {
-            if (!processor.process(superType)) {
+            if (!processor.test(superType)) {
                 return false;
             }
             processSuperTypes(superType, processor, visited);
         }
         return true;
     }
-
 }
